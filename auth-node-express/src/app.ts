@@ -1,8 +1,9 @@
-import express, { Express } from 'express';
+import express, { Request, Response } from 'express';
 import config from './config/config';
 import morgan from './config/morgan';
 import { errorConverter, errorHandler } from './utils/error';
 import router from './router';
+import { StatusCodes } from 'http-status-codes';
 
 
 const app = express();
@@ -15,12 +16,12 @@ app.use(express.json());
 
 app.use("/api", router);
 
-app.get("/v1", (req, res) => {
+app.get("/v1", (req: Request, res: Response) => {
   res.send({ message: "Welcome to my Express TS Template" });
 });
 
-app.use("*error", (req, res) => {
-  res.status(404).send({ message: "Route Not found" });
+app.use("*error", (req: Request, res: Response) => {
+  res.status(StatusCodes.NOT_FOUND).send({ message: "Route Not found" });
 });
 
 app.use(errorConverter);

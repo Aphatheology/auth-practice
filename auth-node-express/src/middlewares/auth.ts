@@ -24,7 +24,7 @@ const auth = async (req: CustomRequest, res: Response, next: NextFunction): Prom
     if (!token) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Please authenticate");
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string, otherId: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
 
     const user = await User.findById(decoded.id);
 

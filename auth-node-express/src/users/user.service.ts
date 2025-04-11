@@ -24,9 +24,6 @@ const register = async (userBody: Record<string, any>): Promise<{ user: IUser; t
   const user = await Users.create(userBody);
   const token = await user.createJWT();
 
-  // const userObj = user.toObject() as Record<string, any>;
-  // delete userObj.password;
-
   return { user, token };
 };
 
@@ -54,14 +51,11 @@ const login = async (userBody: { email: string; password: string }): Promise<{ u
   }
   const token = await user.createJWT();
 
-  // const userObj = user.toObject() as IUser;
-  // delete userObj.password;
-
   return { user, token };
 };
 
 /**
- * Get all jobs for the logged in employer
+ * Get logged in user profile
  * @param {IUser} user
  * @returns {Promise<IUser>}
  */
