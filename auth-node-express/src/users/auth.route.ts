@@ -6,11 +6,15 @@ import * as userValidation from "./user.validation";
 const router: Router = express.Router();
 
 router
-    .route("/register")
-    .post(validate(userValidation.register), userController.register);
+  .route("/register")
+  .post(validate(userValidation.register), userController.register);
 
 router
-    .route("/login")
-    .post(validate(userValidation.login), userController.login);
+  .route("/login")
+  .post(validate(userValidation.login), userController.login);
+
+router
+  .route("/refresh")
+  .post(validate(userValidation.refreshToken), userController.refreshAccessToken);
 
 export default router;

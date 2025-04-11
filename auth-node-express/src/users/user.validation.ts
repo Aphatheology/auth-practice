@@ -15,3 +15,9 @@ export const login = {
     password: Joi.string().required().custom(password),
   }),
 };
+
+export const refreshToken = {
+  body: Joi.object({
+    token: Joi.string().required(),
+  }),
+};

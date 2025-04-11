@@ -1,7 +1,10 @@
+import jwt from "jsonwebtoken";
+import { StatusCodes } from 'http-status-codes';
 import ApiError from "../utils/apiError";
 import { IUser } from './user.interface';
 import Users from "./user.model";
-import { StatusCodes } from 'http-status-codes';
+import config from '../config/config';
+
 
 const isEmailTaken = async (email: string): Promise<boolean> => {
   const user = await Users.findOne({ email });
@@ -16,15 +19,16 @@ const isEmailTaken = async (email: string): Promise<boolean> => {
  * @returns {Promise<{ user: Partial<IUser>, token: string }>} The created user (excluding sensitive fields) and a JWT token
  * @throws {ApiError} If the email is already taken
  */
-const register = async (userBody: Record<string, any>): Promise<{ user: IUser; token: string }> => {
+export const register = async (userBody: Record<string, any>): Promise<{ user: IUser; accessToken: string, refreshToken: string }> => {
   if (await isEmailTaken(userBody.email)) {
     throw new ApiError(StatusCodes.BAD_REQUEST, "Email already taken");
   }
 
   const user = await Users.create(userBody);
-  const token = await user.createJWT();
+  const accessToken = await user.createAccessToken();
+  const refreshToken = await user.createRefreshToken();
 
-  return { user, token };
+  return { user, accessToken, refreshToken };
 };
 
 /**
@@ -35,7 +39,7 @@ const register = async (userBody: Record<string, any>): Promise<{ user: IUser; t
  * @returns {Promise<{ user: Partial<IUser>, token: string }>} The authenticated user (excluding sensitive fields) and a JWT token
  * @throws {ApiError} If the credentials are invalid
  */
-const login = async (userBody: { email: string; password: string }): Promise<{ user: IUser; token: string }> => {
+export const login = async (userBody: { email: string; password: string }): Promise<{ user: IUser; accessToken: string, refreshToken: string }> => {
   const user = await Users.findOne({ email: userBody.email }).select(
     "+password"
   );
@@ -49,9 +53,14 @@ const login = async (userBody: { email: string; password: string }): Promise<{ u
       "Incorrect email or password"
     );
   }
-  const token = await user.createJWT();
 
-  return { user, token };
+  const accessToken = await user.createAccessToken();
+  const refreshToken = await user.createRefreshToken();
+
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  return { user, accessToken, refreshToken };
 };
 
 /**
@@ -59,7 +68,7 @@ const login = async (userBody: { email: string; password: string }): Promise<{ u
  * @param {IUser} user
  * @returns {Promise<IUser>}
  */
-const getProfile = async (user: IUser | undefined): Promise<IUser> => {
+export const getProfile = async (user: IUser | undefined): Promise<IUser> => {
   const userProfile = await Users.findOne({ _id: user?.id });
 
   if (!userProfile) {
@@ -69,8 +78,30 @@ const getProfile = async (user: IUser | undefined): Promise<IUser> => {
   return userProfile;
 };
 
-export default {
-  register,
-  login,
-  getProfile,
+export const refreshToken = async (token: string): Promise<{ accessToken: string; refreshToken: string }> => {
+  const decoded = jwt.verify(token, config.jwt.refreshTokenSecret) as { id: string };
+  const user = await Users.findById(decoded.id);
+
+  if (!user || user.refreshToken !== token) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid refresh token");
+  }
+
+  const newAccessToken = await user.createAccessToken();
+  const newRefreshToken = await user.createRefreshToken();
+
+  user.refreshToken = newRefreshToken;
+  await user.save();
+
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+};
+
+export const logout = async (userId: string): Promise<void> => {
+  const user = await Users.findById(userId);
+
+  if (!user) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  user.refreshToken = null;
+  await user.save();
 };

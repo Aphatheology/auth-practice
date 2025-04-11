@@ -6,7 +6,9 @@ export interface IUser extends Document {
   username: string;
   authProvider: [AuthProviderEnum];
   isEmailVerified: boolean;
-  createJWT: () => string;
+  refreshToken?: string | null;
+  createAccessToken: () => string;
+  createRefreshToken: () => string;
   comparePassword: (candidatePassword: string, userPassword: string) => Promise<boolean>;
 }
 

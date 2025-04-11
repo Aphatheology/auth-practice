@@ -10,4 +10,6 @@ router
   .route("/")
   .get(auth, userController.getProfile);
 
+router.route("/logout").post(auth, userController.logout);
+
 export default router;

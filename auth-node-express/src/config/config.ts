@@ -8,8 +8,10 @@ interface EnvVars {
   NODE_ENV: string;
   PORT: string;
   MONGODB_URI: string;
-  JWT_SECRET: string;
-  JWT_EXPIRE_IN_MINUTE: string;
+  JWT_ACCESS_TOKEN_SECRET: string;
+  JWT_ACCESS_TOKEN_EXPIRE_IN_MINUTE: string;
+  JWT_REFRESH_TOKEN_SECRET: string;
+  JWT_REFRESH_TOKEN_EXPIRE_IN_MINUTE: string;
   CLOUDINARY_NAME: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET: string;
@@ -19,8 +21,10 @@ const envVarsSchema = Joi.object<EnvVars>({
   NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
   PORT: Joi.string().default('4000'),
   MONGODB_URI: Joi.string().required(),
-  JWT_SECRET: Joi.string().required(),
-  JWT_EXPIRE_IN_MINUTE: Joi.number().required(),
+  JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
+  JWT_ACCESS_TOKEN_EXPIRE_IN_MINUTE: Joi.number().required(),
+  JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
+  JWT_REFRESH_TOKEN_EXPIRE_IN_MINUTE: Joi.number().required(),
   CLOUDINARY_NAME: Joi.string().required(),
   CLOUDINARY_API_KEY: Joi.string().required(),
   CLOUDINARY_API_SECRET: Joi.string().required(),
@@ -36,8 +40,10 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   jwt: {
-    secret: envVars.JWT_SECRET,
-    expireInMinute: envVars.JWT_EXPIRE_IN_MINUTE,
+    accessTokenSecret: envVars.JWT_ACCESS_TOKEN_SECRET,
+    accessTokenExpireInMinute: envVars.JWT_ACCESS_TOKEN_EXPIRE_IN_MINUTE,
+    refreshTokenExpireInMinute: envVars.JWT_REFRESH_TOKEN_EXPIRE_IN_MINUTE,
+    refreshTokenSecret: envVars.JWT_REFRESH_TOKEN_SECRET,
   },
   mongoose: {
     url: envVars.MONGODB_URI + (envVars.NODE_ENV === 'test' ? '-test' : ''),

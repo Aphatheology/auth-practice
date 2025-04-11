@@ -28,6 +28,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       default: [AuthProviderEnum.EMAIL_PASSWORD]
     },
     isEmailVerified: { type: Boolean, default: false },
+    refreshToken: {
+      type: String,
+      default: null
+    }
   },
   {
     timestamps: true,
@@ -48,15 +52,21 @@ userSchema.pre<IUser>("save", async function (next) {
   next();
 });
 
-userSchema.methods.createJWT = async function (): Promise<string> {
+userSchema.methods.createAccessToken = async function (): Promise<string> {
   const payload = {
     id: this._id,
     email: this.email,
     iat: moment().unix(),
-    exp: moment().add(config.jwt.expireInMinute, "minutes").unix(),
+    exp: moment().add(config.jwt.accessTokenExpireInMinute, "minutes").unix(),
   };
 
-  return jwt.sign(payload, config.jwt.secret);
+  return jwt.sign(payload, config.jwt.accessTokenSecret);
+};
+
+userSchema.methods.createRefreshToken = async function (): Promise<string> {
+  return jwt.sign({ id: this._id }, config.jwt.refreshTokenSecret, {
+    expiresIn: moment().add(config.jwt.refreshTokenExpireInMinute, "minutes").unix(),
+  });
 };
 
 userSchema.methods.comparePassword = async function (
