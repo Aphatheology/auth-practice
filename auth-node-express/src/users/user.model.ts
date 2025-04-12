@@ -69,6 +69,12 @@ userSchema.methods.createRefreshToken = async function (): Promise<string> {
   });
 };
 
+/**
+ * Compares a candidate password with the user's stored hash
+ * @param {string} candidatePassword
+ * @param {string} userPassword
+ * @returns {Promise<boolean>} True if passwords match
+ */
 userSchema.methods.comparePassword = async function (
   candidatePassword: string,
   userPassword: string

@@ -5,7 +5,6 @@ import { IUser } from './user.interface';
 import Users from "./user.model";
 import config from '../config/config';
 
-
 const isEmailTaken = async (email: string): Promise<boolean> => {
   const user = await Users.findOne({ email });
   return !!user;
@@ -78,6 +77,14 @@ export const getProfile = async (user: IUser | undefined): Promise<IUser> => {
   return userProfile;
 };
 
+/**
+ * Refreshes the user's access and refresh tokens.
+ * Verifies the current refresh token, generates new tokens, and updates the user.
+ *
+ * @param {string} token - The refresh token from the client
+ * @returns {Promise<{ accessToken: string; refreshToken: string }>} - The new tokens
+ * @throws {ApiError} If the token is invalid or the user does not exist
+ */
 export const refreshToken = async (token: string): Promise<{ accessToken: string; refreshToken: string }> => {
   const decoded = jwt.verify(token, config.jwt.refreshTokenSecret) as { id: string };
   const user = await Users.findById(decoded.id);
@@ -95,6 +102,13 @@ export const refreshToken = async (token: string): Promise<{ accessToken: string
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };
 
+/**
+ * Logs out the user by clearing their refresh token from the database.
+ *
+ * @param {string} userId - The ID of the user to log out
+ * @returns {Promise<void>}
+ * @throws {ApiError} If the user is not found
+ */
 export const logout = async (userId: string): Promise<void> => {
   const user = await Users.findById(userId);
 
