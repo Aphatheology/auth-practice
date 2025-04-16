@@ -4,6 +4,7 @@ import morgan from './config/morgan';
 import { errorConverter, errorHandler } from './utils/error';
 import router from './router';
 import { StatusCodes } from 'http-status-codes';
+import { sendSuccess, sendError } from './utils/apiResponse';
 
 
 const app = express();
@@ -17,11 +18,11 @@ app.use(express.json());
 app.use("/api", router);
 
 app.get("/v1", (req: Request, res: Response) => {
-  res.send({ message: "Welcome to my Express TS Template" });
+  sendSuccess(res, StatusCodes.OK, 'Welcome to Auth-Node-Express Project');
 });
 
 app.use("*error", (req: Request, res: Response) => {
-  res.status(StatusCodes.NOT_FOUND).send({ message: "Route Not found" });
+  sendError(res, StatusCodes.NOT_FOUND, 'Route Not found');
 });
 
 app.use(errorConverter);
