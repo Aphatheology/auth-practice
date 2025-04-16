@@ -7,25 +7,46 @@ import { sendSuccess } from '../utils/apiResponse';
 
 export const register = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const user = await userService.register(req.body);
-  sendSuccess(res, 'User registered successfully', user, StatusCodes.CREATED);
+  sendSuccess(res, StatusCodes.CREATED, 'User registered successfully', user);
 });
 
 export const login = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const user = await userService.login(req.body);
-  sendSuccess(res, 'User login successfully', user, StatusCodes.OK);
+  sendSuccess(res, StatusCodes.OK, 'User login successfully', user);
 });
 
 export const getProfile = catchAsync(async (req: CustomRequest, res: Response): Promise<any> => {
     const user = await userService.getProfile(req.user);
-    sendSuccess(res, 'User profile fetched successfully', user, StatusCodes.OK);
+    sendSuccess(res, StatusCodes.OK, 'User profile fetched successfully', user);
 });
 
 export const refreshAccessToken = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const tokens = await userService.refreshToken(req.body.token);
-  sendSuccess(res, 'Token refreshed successfully', StatusCodes.OK);
+  const tokens = await userService.refreshToken(req.body.refreshToken);
+  sendSuccess(res, StatusCodes.OK, 'Token refreshed successfully', tokens);
 });
 
 export const logout = catchAsync(async (req: CustomRequest, res: Response): Promise<void> => {
   await userService.logout(req.user?.id);
-  sendSuccess(res, 'User logged out successfully', StatusCodes.OK);
+  sendSuccess(res, StatusCodes.OK, 'User logged out successfully');
+});
+
+export const sendVerificationEmail = catchAsync(async (req: CustomRequest, res: Response): Promise<void> => {
+  await userService.sendEmailVerification(req.user);
+  sendSuccess(res, StatusCodes.OK, 'Verification email sent successfully');
+});
+
+export const verifyEmail = catchAsync(async (req: CustomRequest, res: Response): Promise<void> => {
+  await userService.verifyEmail(req.user, req.body.otp);
+  sendSuccess(res, StatusCodes.OK, 'Email verified successfully');
+});
+
+export const forgotPassword = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  await userService.sendForgotPasswordEmail(req.body.email);
+  sendSuccess(res, StatusCodes.OK, 'Forgot Password OTP sent to email');
+});
+
+export const resetPassword = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  const { email, otp, password } = req.body;
+  await userService.resetPassword(email, otp, password);
+  sendSuccess(res, StatusCodes.OK, 'Password reset successfully');
 });

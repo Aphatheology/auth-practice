@@ -18,6 +18,26 @@ export const login = {
 
 export const refreshToken = {
   body: Joi.object({
-    token: Joi.string().required(),
+    refreshToken: Joi.string().required(),
+  }),
+};
+
+export const verifyEmail = {
+  body: Joi.object({
+    otp: Joi.string().required(),
+  }),
+};
+
+export const forgotPassword = {
+  body: Joi.object({
+    email: Joi.string().email().required(),
+  }),
+};
+
+export const resetPassword = {
+  body: Joi.object({
+    email: Joi.string().email().required(),
+    otp: Joi.string().required(),
+    password: Joi.string().required().custom(password),
   }),
 };

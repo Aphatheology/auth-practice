@@ -15,6 +15,11 @@ interface EnvVars {
   CLOUDINARY_NAME: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET: string;
+  EMAIL_SERVICE: string;
+  EMAIL_USERNAME: string;
+  EMAIL_PASSWORD: string;
+  EMAIL_FROM: string;
+  CLIENT_URL: string;
 }
 
 const envVarsSchema = Joi.object<EnvVars>({
@@ -28,6 +33,11 @@ const envVarsSchema = Joi.object<EnvVars>({
   CLOUDINARY_NAME: Joi.string().required(),
   CLOUDINARY_API_KEY: Joi.string().required(),
   CLOUDINARY_API_SECRET: Joi.string().required(),
+  EMAIL_SERVICE: Joi.string().required(),
+  EMAIL_USERNAME: Joi.string().required(),
+  EMAIL_PASSWORD: Joi.string().required(),
+  EMAIL_FROM: Joi.string().required(),
+  CLIENT_URL: Joi.string().uri().required(),
 }).unknown();
 
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -57,6 +67,15 @@ const config = {
     name: envVars.CLOUDINARY_NAME,
     apiKey: envVars.CLOUDINARY_API_KEY,
     apiSecret: envVars.CLOUDINARY_API_SECRET,
+  },
+  email: {
+    service: envVars.EMAIL_SERVICE,
+    username: envVars.EMAIL_USERNAME,
+    password: envVars.EMAIL_PASSWORD,
+    from: envVars.EMAIL_FROM,
+  },
+  client: {
+    url: envVars.CLIENT_URL,
   }
 };
 

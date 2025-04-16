@@ -9,6 +9,9 @@ const router: Router = express.Router();
 router
   .route("/")
   .get(auth, userController.getProfile);
+  
+router.route('/send-verification-email').post(auth, userController.sendVerificationEmail);
+router.route('/verify-email').post(auth, validate(userValidation.verifyEmail), userController.verifyEmail);
 
 router.route("/logout").post(auth, userController.logout);
 

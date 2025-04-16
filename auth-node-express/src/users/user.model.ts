@@ -30,7 +30,8 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     isEmailVerified: { type: Boolean, default: false },
     refreshToken: {
       type: String,
-      default: null
+      default: null,
+      select: false
     }
   },
   {

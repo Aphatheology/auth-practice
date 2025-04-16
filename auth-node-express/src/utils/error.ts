@@ -41,5 +41,5 @@ export const errorHandler = (err: ApiError, _req: Request, res: Response, _next:
     ...(config.env === 'development' ? { stack: err.stack } : {})
   };
   
-  sendError(res, message, errorPayload, statusCode);
+  sendError(res, statusCode, message, errorPayload);
 };

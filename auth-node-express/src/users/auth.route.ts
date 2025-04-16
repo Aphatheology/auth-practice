@@ -17,4 +17,7 @@ router
   .route("/refresh")
   .post(validate(userValidation.refreshToken), userController.refreshAccessToken);
 
+router.route('/forgot-password').post(validate(userValidation.forgotPassword), userController.forgotPassword);
+router.route('/reset-password').post(validate(userValidation.resetPassword), userController.resetPassword);
+
 export default router;

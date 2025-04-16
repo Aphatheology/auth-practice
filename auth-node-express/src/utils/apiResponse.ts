@@ -2,9 +2,9 @@ import { Response } from "express";
 
 export const sendSuccess = (
   res: Response,
+  statusCode = 200,
   message: string,
-  data: any = {},
-  statusCode = 200
+  data: any = {}
 ) => {
   return res.status(statusCode).json({
     status: 'success',
@@ -15,9 +15,9 @@ export const sendSuccess = (
 
 export const sendError = (
   res: Response,
+  statusCode = 400,
   message: string,
   errors: any = {},
-  statusCode = 400
 ) => {
   return res.status(statusCode).json({
     status: 'error',

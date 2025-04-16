@@ -4,6 +4,9 @@ import ApiError from "../utils/apiError";
 import { IUser } from './user.interface';
 import Users from "./user.model";
 import config from '../config/config';
+import { buildVerificationEmail, sendEmail, buildResetPasswordEmail } from '../utils/email';
+import { TokenTypeEnum } from '../tokens/token.model';
+import { deleteTokens, createToken, verifyToken } from '../tokens/token.service';
 
 const isEmailTaken = async (email: string): Promise<boolean> => {
   const user = await Users.findOne({ email });
@@ -24,6 +27,7 @@ export const register = async (userBody: Record<string, any>): Promise<{ user: I
   }
 
   const user = await Users.create(userBody);
+  await sendEmailVerification(user);
   const accessToken = await user.createAccessToken();
   const refreshToken = await user.createRefreshToken();
 
@@ -67,8 +71,8 @@ export const login = async (userBody: { email: string; password: string }): Prom
  * @param {IUser} user
  * @returns {Promise<IUser>}
  */
-export const getProfile = async (user: IUser | undefined): Promise<IUser> => {
-  const userProfile = await Users.findOne({ _id: user?.id });
+export const getProfile = async (user: IUser): Promise<IUser> => {
+  const userProfile = await Users.findOne({ _id: user.id });
 
   if (!userProfile) {
     throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
@@ -81,15 +85,15 @@ export const getProfile = async (user: IUser | undefined): Promise<IUser> => {
  * Refreshes the user's access and refresh tokens.
  * Verifies the current refresh token, generates new tokens, and updates the user.
  *
- * @param {string} token - The refresh token from the client
+ * @param {string} userRefreshToken - The refresh token from the client
  * @returns {Promise<{ accessToken: string; refreshToken: string }>} - The new tokens
  * @throws {ApiError} If the token is invalid or the user does not exist
  */
-export const refreshToken = async (token: string): Promise<{ accessToken: string; refreshToken: string }> => {
-  const decoded = jwt.verify(token, config.jwt.refreshTokenSecret) as { id: string };
-  const user = await Users.findById(decoded.id);
+export const refreshToken = async (userRefreshToken: string): Promise<{ accessToken: string; refreshToken: string }> => {
+  const decoded = jwt.verify(userRefreshToken, config.jwt.refreshTokenSecret) as { id: string };
+  const user = await Users.findById(decoded.id).select('+refreshToken');;
 
-  if (!user || user.refreshToken !== token) {
+  if (!user || user.refreshToken !== userRefreshToken) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid refresh token");
   }
 
@@ -118,4 +122,57 @@ export const logout = async (userId: string): Promise<void> => {
 
   user.refreshToken = null;
   await user.save();
+};
+
+/**
+ * Sends email verification link to the user.
+ */
+export const sendEmailVerification = async (user: IUser): Promise<void> => {
+  await deleteTokens(user._id.toString(), TokenTypeEnum.EMAIL_VERIFICATION);
+
+  const { token, otp } = await createToken(user._id.toString(), TokenTypeEnum.EMAIL_VERIFICATION, 10);
+  const html = buildVerificationEmail(otp);
+  await sendEmail(user.email, 'Verify your email', html);
+};
+
+/**
+ * Verifies user's email using token.
+ */
+export const verifyEmail = async (user: IUser, otp: string): Promise<void> => {
+  await verifyToken(user._id.toHexString(), otp, TokenTypeEnum.EMAIL_VERIFICATION);
+  console.log(user);
+  user.isEmailVerified = true;
+  await user.save();
+  await deleteTokens(user._id.toHexString(), TokenTypeEnum.EMAIL_VERIFICATION);
+};
+
+
+/**
+ * Sends a password reset link to the user's email.
+ */
+export const sendForgotPasswordEmail = async (email: string): Promise<void> => {
+  const user = await Users.findOne({ email });
+  if (!user) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'User with email does not exist');
+  }
+  const { token, otp } = await createToken(user._id.toString(), TokenTypeEnum.FORGOT_PASSWORD, 10);
+  const html = buildResetPasswordEmail(otp);
+  await sendEmail(email, 'Reset your password', html);
+};
+
+/**
+ * Resets user password using the token.
+ */
+export const resetPassword = async (userEmail: string, otp: string, newPassword: string): Promise<void> => {
+  const user = await Users.findOne({ email: userEmail });
+
+  if (!user) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "User not found");
+  }
+
+  await verifyToken(user._id.toHexString(), otp, TokenTypeEnum.FORGOT_PASSWORD);
+
+  user.password = newPassword;
+  await user.save();
+  await deleteTokens(user._id.toHexString(), TokenTypeEnum.FORGOT_PASSWORD,);
 };

@@ -1,16 +1,17 @@
 import jwt from "jsonwebtoken";
 import ApiError from "../utils/apiError";
 import User from "../users/user.model";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { StatusCodes } from 'http-status-codes';
 import { IUser } from '../users/user.interface';
+import config from "../config/config";
 
 export interface CustomRequest extends Request {
-  user?: IUser;
+  user: IUser;
   token?: string
 }
 
-const auth = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
+const auth: RequestHandler  = async (req, res, next): Promise<void> => {
   let token: string | undefined;
 
   if (
@@ -24,7 +25,7 @@ const auth = async (req: CustomRequest, res: Response, next: NextFunction): Prom
     if (!token) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Please authenticate");
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+    const decoded = jwt.verify(token, config.jwt.accessTokenSecret) as { id: string };
 
     const user = await User.findById(decoded.id);
 
@@ -32,7 +33,7 @@ const auth = async (req: CustomRequest, res: Response, next: NextFunction): Prom
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Please authenticate");
     }
 
-    req.user = user;
+    (req as CustomRequest).user = user;
     next();
   } catch (error) {
     next(error);

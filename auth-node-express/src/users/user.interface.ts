@@ -1,6 +1,7 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
   email: string;
   password: string;
   username: string;
@@ -13,6 +14,6 @@ export interface IUser extends Document {
 }
 
 export enum AuthProviderEnum {
-  EMAIL_PASSWORD = "email-password",
+  EMAIL_PASSWORD = "email_password",
   GOOGLE = "google"
 }
