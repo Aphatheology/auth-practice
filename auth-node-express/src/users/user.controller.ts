@@ -10,6 +10,18 @@ export const register = catchAsync(async (req: Request, res: Response): Promise<
   sendSuccess(res, StatusCodes.CREATED, 'User registered successfully', user);
 });
 
+export const googleCallback = catchAsync(async (req: CustomRequest, res: Response): Promise<void> => {
+  const user = req.user;
+
+  const accessToken = await user.createAccessToken();
+  const refreshToken = await user.createRefreshToken();
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  // res.redirect(`${config.client.url}/oauth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`);
+  sendSuccess(res, StatusCodes.OK, 'User login successfully', {user, accessToken, refreshToken});
+});
+
 export const login = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const user = await userService.login(req.body);
   sendSuccess(res, StatusCodes.OK, 'User login successfully', user);

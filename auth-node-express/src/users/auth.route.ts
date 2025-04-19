@@ -1,9 +1,21 @@
 import express, { Router } from "express";
+import passport from 'passport';
 import validate from "../middlewares/validate";
 import * as userController from "./user.controller";
 import * as userValidation from "./user.validation";
 
 const router: Router = express.Router();
+
+
+router.get('/google', passport.authenticate('google', {
+  scope: ['profile', 'email'],
+}));
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+  userController.googleCallback
+);
 
 router
   .route("/register")

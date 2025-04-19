@@ -41,3 +41,9 @@ export const resetPassword = {
     password: Joi.string().required().custom(password),
   }),
 };
+
+export const googleLogin = {
+  body: Joi.object({
+    idToken: Joi.string().required(),
+  }),
+};

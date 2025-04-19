@@ -20,6 +20,9 @@ interface EnvVars {
   EMAIL_PASSWORD: string;
   EMAIL_FROM: string;
   CLIENT_URL: string;
+  SERVER_URL: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
 }
 
 const envVarsSchema = Joi.object<EnvVars>({
@@ -38,6 +41,9 @@ const envVarsSchema = Joi.object<EnvVars>({
   EMAIL_PASSWORD: Joi.string().required(),
   EMAIL_FROM: Joi.string().required(),
   CLIENT_URL: Joi.string().uri().required(),
+  SERVER_URL: Joi.string().uri().required(),
+  GOOGLE_CLIENT_ID: Joi.string().required(),
+  GOOGLE_CLIENT_SECRET: Joi.string().required(),
 }).unknown();
 
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -76,7 +82,14 @@ const config = {
   },
   client: {
     url: envVars.CLIENT_URL,
-  }
+  },
+  server: {
+    url: envVars.SERVER_URL,
+  },
+  google: {
+    clientId: envVars.GOOGLE_CLIENT_ID,
+    clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+  },
 };
 
 export default config;
