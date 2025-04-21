@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { CustomRequest } from 'middlewares/auth';
 import * as userService from './user.service';
 import { sendSuccess } from '../utils/apiResponse';
+import config from '../config/config';
 
 export const register = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const user = await userService.register(req.body);
@@ -18,8 +19,8 @@ export const googleCallback = catchAsync(async (req: CustomRequest, res: Respons
   user.refreshToken = refreshToken;
   await user.save();
 
-  // res.redirect(`${config.client.url}/oauth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`);
-  sendSuccess(res, StatusCodes.OK, 'User login successfully', {user, accessToken, refreshToken});
+  res.redirect(`${config.client.url}/oauth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`);
+  // sendSuccess(res, StatusCodes.OK, 'User login successfully', {user, accessToken, refreshToken});
 });
 
 export const login = catchAsync(async (req: Request, res: Response): Promise<void> => {

@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import passport from 'passport';
+import cors from 'cors';
 import config from './config/config';
 import morgan from './config/morgan';
 import { errorConverter, errorHandler } from './utils/error';
@@ -10,6 +11,13 @@ import './config/passport';
 
 
 const app = express();
+
+app.use(cors({
+  origin: config.client.url,  
+  credentials: true,
+}));
+
+app.options('*options', cors());
 
 if (config.env !== "test") {
   app.use(morgan.successHandler);
