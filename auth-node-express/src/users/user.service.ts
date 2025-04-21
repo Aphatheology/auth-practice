@@ -47,6 +47,10 @@ export const login = async (userBody: { email: string; password: string }): Prom
     "+password"
   );
 
+  if (!user?.password) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "Password not set, use social sign in");
+  }
+
   if (
     !user ||
     !(await user.comparePassword(userBody.password, user.password))
