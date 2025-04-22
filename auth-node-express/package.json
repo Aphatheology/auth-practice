@@ -17,7 +17,7 @@
   "main": "./dist/server.js",
   "scripts": {
     "test": "ts-node ./dist/server.ts",
-    "dev": "cross-env NODE_ENV=production tsc-watch --onSuccess \"node ./dist/server.js\"",
+    "dev": "cross-env NODE_ENV=development tsc-watch --onSuccess \"node ./dist/server.js\"",
     "prod": "cross-env NODE_ENV=production tsc && node ./dist/server.js",
     "build": "tsc",
     "start": "node ./dist/server.js",

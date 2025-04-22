@@ -11,7 +11,9 @@ router
   .get(auth, userController.getProfile);
   
 router.route('/send-verification-email').post(auth, userController.sendVerificationEmail);
-router.route('/verify-email').post(auth, validate(userValidation.verifyEmail), userController.verifyEmail);
+router.route('/verify-email').post(validate(userValidation.verifyEmail), auth, userController.verifyEmail);
+router.route('/send-set-password-email').post(auth, userController.sendSetPasswordEmail);
+router.route('/set-password').post(validate(userValidation.setPassword), auth, userController.setPassword);
 
 router.route("/logout").post(auth, userController.logout);
 

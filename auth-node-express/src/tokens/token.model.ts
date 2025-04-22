@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export enum TokenTypeEnum {
   EMAIL_VERIFICATION = 'email_verification',
   FORGOT_PASSWORD = 'forgot_password',
+  SET_PASSWORD = 'set_password',
 }
 
 export interface IToken extends Document {

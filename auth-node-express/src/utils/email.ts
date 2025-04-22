@@ -42,6 +42,17 @@ export const buildResetPasswordEmail = (otp: string) => {
   `;
 };
 
+export const buildSetPasswordEmail = (otp: string) => {
+  return `
+    <h3>Set Password</h3>
+    <p>Please use the OTP below to set your password:</p>
+    <div style="font-size: 24px; font-weight: bold; margin: 16px 0; color: #f44336;">
+      ${otp}
+    </div>
+    <p>This OTP will expire in 10 minutes. If you didn’t request to set a password for your account, please ignore this email.</p>
+  `;
+};
+
 // export const buildVerificationEmail = (token: string, otp: string) => {
 //   const url = `${config.client.url}/verify-email?token=${token}`;
 //   return `

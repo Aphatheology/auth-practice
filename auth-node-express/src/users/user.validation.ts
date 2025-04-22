@@ -47,3 +47,10 @@ export const googleLogin = {
     idToken: Joi.string().required(),
   }),
 };
+
+export const setPassword = {
+  body: Joi.object({
+    otp: Joi.string().required(),
+    password: Joi.string().required().custom(password),
+  }),
+};

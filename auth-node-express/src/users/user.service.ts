@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 import { StatusCodes } from 'http-status-codes';
 import ApiError from "../utils/apiError";
-import { IUser } from './user.interface';
+import { AuthProviderEnum, IUser } from './user.interface';
 import Users from "./user.model";
 import config from '../config/config';
-import { buildVerificationEmail, sendEmail, buildResetPasswordEmail } from '../utils/email';
+import { buildVerificationEmail, sendEmail, buildResetPasswordEmail, buildSetPasswordEmail } from '../utils/email';
 import { TokenTypeEnum } from '../tokens/token.model';
 import { deleteTokens, createToken, verifyToken } from '../tokens/token.service';
 
@@ -144,7 +144,6 @@ export const sendEmailVerification = async (user: IUser): Promise<void> => {
  */
 export const verifyEmail = async (user: IUser, otp: string): Promise<void> => {
   await verifyToken(user._id.toHexString(), otp, TokenTypeEnum.EMAIL_VERIFICATION);
-  console.log(user);
   user.isEmailVerified = true;
   await user.save();
   await deleteTokens(user._id.toHexString(), TokenTypeEnum.EMAIL_VERIFICATION);
@@ -179,4 +178,25 @@ export const resetPassword = async (userEmail: string, otp: string, newPassword:
   user.password = newPassword;
   await user.save();
   await deleteTokens(user._id.toHexString(), TokenTypeEnum.FORGOT_PASSWORD,);
+};
+
+export const sendSetPasswordEmail = async (user: IUser): Promise<void> => {
+  await deleteTokens(user._id.toString(), TokenTypeEnum.SET_PASSWORD);
+
+  const { token, otp } = await createToken(user._id.toString(), TokenTypeEnum.SET_PASSWORD, 10);
+  const html = buildSetPasswordEmail(otp);
+  await sendEmail(user.email, 'Set your Password', html);
+};
+
+export const setPassword = async (user: IUser, otp: string, newPassword: string): Promise<{ user: IUser }> => {
+  console.log(user);
+  await verifyToken(user._id.toHexString(), otp, TokenTypeEnum.SET_PASSWORD);
+
+  user.password = newPassword;
+  if (!user.authProvider.includes(AuthProviderEnum.EMAIL_PASSWORD)) {
+    user.authProvider.push(AuthProviderEnum.EMAIL_PASSWORD);
+  }
+  await user.save();
+  await deleteTokens(user._id.toHexString(), TokenTypeEnum.FORGOT_PASSWORD,);
+  return { user };
 };

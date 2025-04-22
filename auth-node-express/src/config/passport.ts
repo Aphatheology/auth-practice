@@ -11,7 +11,6 @@ passport.use(new GoogleStrategy(
     callbackURL: `${config.server.url}/api/auth/google/callback`,
   },
   async (accessToken, refreshToken, profile, done) => {
-    console.log(profile);
     const email = profile.emails?.[0]?.value;
     const name = profile.displayName;
 

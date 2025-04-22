@@ -6,7 +6,6 @@ import * as userValidation from "./user.validation";
 
 const router: Router = express.Router();
 
-
 router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email'],
 }));
