@@ -83,5 +83,5 @@ export const sendSetPasswordEmail = catchAsync(async (req: CustomRequest, res: R
 export const setPassword = catchAsync(async (req: CustomRequest, res: Response): Promise<void> => {
   const { otp, password } = req.body;
   await userService.setPassword(req.user, otp, password);
-  sendSuccess(res, StatusCodes.OK, 'Password reset successfully');
+  sendSuccess(res, StatusCodes.OK, 'Password set successfully');
 });
