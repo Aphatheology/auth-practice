@@ -15,5 +15,6 @@ export interface IUser extends Document {
 
 export enum AuthProviderEnum {
   EMAIL_PASSWORD = "email_password",
-  GOOGLE = "google"
+  GOOGLE = "google",
+  GITHUB = "github",
 }

@@ -16,6 +16,14 @@ router.get(
   userController.googleCallback
 );
 
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+router.get(
+  '/github/callback',
+  passport.authenticate('github', { session: false, failureRedirect: '/login' }),
+  userController.githubCallback
+);
+
 router
   .route("/register")
   .post(validate(userValidation.register), userController.register);

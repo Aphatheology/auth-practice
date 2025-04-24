@@ -23,6 +23,8 @@ interface EnvVars {
   SERVER_URL: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  GITHUB_CLIENT_ID: string;
+  GITHUB_CLIENT_SECRET: string;
 }
 
 const envVarsSchema = Joi.object<EnvVars>({
@@ -44,6 +46,8 @@ const envVarsSchema = Joi.object<EnvVars>({
   SERVER_URL: Joi.string().uri().required(),
   GOOGLE_CLIENT_ID: Joi.string().required(),
   GOOGLE_CLIENT_SECRET: Joi.string().required(),
+  GITHUB_CLIENT_ID: Joi.string().required(),
+  GITHUB_CLIENT_SECRET: Joi.string().required(),
 }).unknown();
 
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
@@ -89,6 +93,10 @@ const config = {
   google: {
     clientId: envVars.GOOGLE_CLIENT_ID,
     clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+  },
+  github: {
+    clientId: envVars.GITHUB_CLIENT_ID,
+    clientSecret: envVars.GITHUB_CLIENT_SECRET,
   },
 };
 

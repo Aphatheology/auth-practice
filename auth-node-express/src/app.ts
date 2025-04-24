@@ -9,7 +9,6 @@ import { StatusCodes } from 'http-status-codes';
 import { sendSuccess, sendError } from './utils/apiResponse';
 import './config/passport';
 
-
 const app = express();
 
 app.use(cors({

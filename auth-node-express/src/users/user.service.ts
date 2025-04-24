@@ -47,18 +47,17 @@ export const login = async (userBody: { email: string; password: string }): Prom
     "+password"
   );
 
-  if (!user?.password) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, "Password not set, use social sign in");
+  if (!user) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Incorrect email or password');
   }
 
-  if (
-    !user ||
-    !(await user.comparePassword(userBody.password, user.password))
-  ) {
-    throw new ApiError(
-      StatusCodes.UNAUTHORIZED,
-      "Incorrect email or password"
-    );
+  if (!user.password) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Password not set. Use social login or set a password.');
+  }
+
+  const isPasswordMatch = await user.comparePassword(userBody.password, user.password);
+  if (!isPasswordMatch) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Incorrect email or password');
   }
 
   const accessToken = await user.createAccessToken();
