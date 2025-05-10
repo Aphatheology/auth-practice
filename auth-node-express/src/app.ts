@@ -27,7 +27,7 @@ app.use(passport.initialize());
 
 app.use("/api", router);
 
-app.get("/v1", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   sendSuccess(res, StatusCodes.OK, 'Welcome to Auth-Node-Express Project');
 });
 
